@@ -1,0 +1,40 @@
+model {
+  # Priors: tau and tau0 and M
+  tau ~ dgamma(4,0.04)
+  tau0 ~ dgamma(4,0.04)
+  for(j in 1:nexp){
+    M[j] ~ dunif(0,4000)
+  }
+  
+  # Modelling the x values. x=dosage from problem sheet.
+  for(j in 1:nexp){
+    x[1, j] ~ dnorm(0, 1/100)
+    x[2, j] ~ dnorm(x[1, j], tau)
+    for (i in 3:ndoses) {
+      x[i, j] ~ dnorm(2*x[i-1,j]-x[i-2,j],tau)
+    }
+  }
+  
+  # variation from model1: instead of mu for experiment, mu for
+  # (experiment, x) combination. Hence m and mu[i,j]
+  for(j in 1:nexp){
+    m[1, j] <- 0
+    for (i in 2:ndoses) {
+      m[i, j] <- m[i-1,j] - exp(x[i-1,j])
+    }
+  }
+  
+  for(j in 1:nexp){
+    mu[1, j] <- 1
+    for (i in 2:ndoses) {
+      mu[i, j] <- exp(m[i,j])
+    }
+  }
+  
+  # Plugging all values to get new effect distribution
+  for(j in 1:nexp){
+    for (i in 1:ndoses) {
+      effect[i, j] ~ dnorm(M[j] * mu[i, j], tau0)
+    }
+  }
+}
