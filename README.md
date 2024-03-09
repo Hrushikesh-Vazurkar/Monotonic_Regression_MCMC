@@ -1,2 +1,1 @@
-# Monotonic_Regression_MCMC
-Implementing monotonic regression using JAGS as per the defined equations.
+# Monotonic Regression using Markov Models in JAGS [R language]
